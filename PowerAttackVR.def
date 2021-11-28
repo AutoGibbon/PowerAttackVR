@@ -1,0 +1,4 @@
+LIBRARY	"PowerAttackVR"
+EXPORTS
+SKSEPlugin_Query
+SKSEPlugin_Load

@@ -1,0 +1,109 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <ClCompile Include="main.cpp" />
+    <ClCompile Include="MenuChecker.cpp" />
+    <ClCompile Include="PowerAttackVR.cpp" />
+    <ClCompile Include="api\PapyrusVRTypes.cpp">
+      <Filter>External</Filter>
+    </ClCompile>
+    <ClCompile Include="api\collisions\LocalOverlapObject.cpp">
+      <Filter>External</Filter>
+    </ClCompile>
+    <ClCompile Include="api\collisions\Sphere.cpp">
+      <Filter>External</Filter>
+    </ClCompile>
+    <ClCompile Include="api\utils\OpenVRUtils.cpp">
+      <Filter>External</Filter>
+    </ClCompile>
+    <ClCompile Include="hooks\HookVRCompositor.cpp">
+      <Filter>External</Filter>
+    </ClCompile>
+    <ClCompile Include="hooks\HookVRSystem.cpp">
+      <Filter>External</Filter>
+    </ClCompile>
+    <ClCompile Include="hooks\openvr_hook.cpp">
+      <Filter>External</Filter>
+    </ClCompile>
+    <ClCompile Include="DirUtils.cpp">
+      <Filter>External</Filter>
+    </ClCompile>
+    <ClCompile Include="PapyrusVR.cpp">
+      <Filter>External</Filter>
+    </ClCompile>
+    <ClCompile Include="VRManager.cpp">
+      <Filter>External</Filter>
+    </ClCompile>
+    <ClCompile Include="config.cpp" />
+    <ClCompile Include="Helper.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="MenuChecker.h" />
+    <ClInclude Include="PowerAttackVR.h" />
+    <ClInclude Include="Utility.hpp" />
+    <ClInclude Include="api\OpenVRTypes.h">
+      <Filter>External</Filter>
+    </ClInclude>
+    <ClInclude Include="api\PapyrusVRAPI.h">
+      <Filter>External</Filter>
+    </ClInclude>
+    <ClInclude Include="api\PapyrusVRTypes.h">
+      <Filter>External</Filter>
+    </ClInclude>
+    <ClInclude Include="api\VRHookAPI.h">
+      <Filter>External</Filter>
+    </ClInclude>
+    <ClInclude Include="api\VRManagerAPI.h">
+      <Filter>External</Filter>
+    </ClInclude>
+    <ClInclude Include="api\collisions\IShape.h">
+      <Filter>External</Filter>
+    </ClInclude>
+    <ClInclude Include="api\collisions\LocalOverlapObject.h">
+      <Filter>External</Filter>
+    </ClInclude>
+    <ClInclude Include="api\collisions\Sphere.h">
+      <Filter>External</Filter>
+    </ClInclude>
+    <ClInclude Include="api\utils\OpenVRUtils.h">
+      <Filter>External</Filter>
+    </ClInclude>
+    <ClInclude Include="hooks\HookVRCompositor.h">
+      <Filter>External</Filter>
+    </ClInclude>
+    <ClInclude Include="hooks\HookVRSystem.h">
+      <Filter>External</Filter>
+    </ClInclude>
+    <ClInclude Include="hooks\IHookInterfaceFactory.h">
+      <Filter>External</Filter>
+    </ClInclude>
+    <ClInclude Include="hooks\openvr_hook.h">
+      <Filter>External</Filter>
+    </ClInclude>
+    <ClInclude Include="DirUtils.h">
+      <Filter>External</Filter>
+    </ClInclude>
+    <ClInclude Include="EventHandling.h">
+      <Filter>External</Filter>
+    </ClInclude>
+    <ClInclude Include="PapyrusVR.h">
+      <Filter>External</Filter>
+    </ClInclude>
+    <ClInclude Include="ScaleformVR.h">
+      <Filter>External</Filter>
+    </ClInclude>
+    <ClInclude Include="VRManager.h">
+      <Filter>External</Filter>
+    </ClInclude>
+    <ClInclude Include="config.h" />
+    <ClInclude Include="Helper.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="PowerAttackVR.def" />
+  </ItemGroup>
+  <ItemGroup>
+    <Filter Include="External">
+      <UniqueIdentifier>{baf0c3b7-e422-4e48-8e95-b8b8018496d8}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+</Project>
