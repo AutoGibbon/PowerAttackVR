@@ -100,6 +100,7 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="PowerAttackVR.def" />
+    <None Include="PowerAttackVR.esp" />
   </ItemGroup>
   <ItemGroup>
     <Filter Include="External">

@@ -18,9 +18,10 @@ namespace PowerAttackVR
 {
 	const float TOLERANCE= 0.00001f;
 
-	struct HandPosStamina
+	struct HandPosition
 	{
 		NiPoint3 pos;
+		NiPoint3 pos2;
 		NiMatrix33 rot;
 		float stamina;
 		double time;
@@ -55,30 +56,6 @@ namespace PowerAttackVR
 	
 	void StartMod();
 	void AfterGameLoad();
-	void InitializePointers();
-
-	void HitEventFunc(bool secondaryHand, Actor * targetActor, TESObjectREFR* targetRefr);
-
-	void Hooks();
-
-	class SKSEActionEventHandler : public BSTEventSink <SKSEActionEvent>
-	{
-	public:
-		virtual EventResult ReceiveEvent(SKSEActionEvent* evn, EventDispatcher<SKSEActionEvent>* dispatcher);
-	};
-
-	extern SKSEActionEventHandler g_SKSEActionEventHandler;
-
-	class HitEventHandler : public BSTEventSink <TESHitEvent>
-	{
-	public:
-		virtual	EventResult ReceiveEvent(TESHitEvent * evn, EventDispatcher<TESHitEvent> * dispatcher);
-	};
-
-	extern EventDispatcher<TESHitEvent>* g_HitEventDispatcher;
-	extern HitEventHandler g_HitEventHandler;
-
-	typedef void(*OriginalAttackBlockHandler)(TESObjectREFR* ref, NiPoint3* velocity);
 
 	extern TESGlobal* powerAttackControlValueGlobal;
 }

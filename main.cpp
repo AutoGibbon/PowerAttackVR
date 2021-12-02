@@ -27,15 +27,6 @@ namespace PowerAttackVR
 	void SetupReceptors()
 	{
 		_MESSAGE("Building Event Sinks...");
-
-		EventDispatcherList* edl = GetEventDispatcherList();
-		if (edl)
-		{
-			g_actionEventDispatcher.AddEventSink(&PowerAttackVR::g_SKSEActionEventHandler);
-
-			PowerAttackVR::g_HitEventDispatcher = (EventDispatcher<TESHitEvent>*)(&(edl->unk630));
-			PowerAttackVR::g_HitEventDispatcher->AddEventSink(&PowerAttackVR::g_HitEventHandler);
-		}
 		
 		MenuManager * menuManager = MenuManager::GetSingleton();
 		if (menuManager)
@@ -50,14 +41,14 @@ namespace PowerAttackVR
 			gLog.SetLogLevel(IDebugLog::kLevel_DebugMessage);
 			//gLog.SetLogLevel(IDebugLog::kLevel_FatalError);
 
-			std::string logMsg("WeaponThrow VR: ");
+			std::string logMsg("PowerAttack VR: ");
 			logMsg.append(PowerAttackVR::MOD_VERSION);
 			_MESSAGE(logMsg.c_str());
 
 			// populate info structure
 			info->infoVersion = PluginInfo::kInfoVersion;
 			info->name = "PowerAttackVR";
-			info->version = 010302; // 1.3.2
+			info->version = 000001; // 0.0.1
 
 			// store plugin handle so we can identify ourselves later
 			g_pluginHandle = skse->GetPluginHandle();
@@ -114,11 +105,6 @@ namespace PowerAttackVR
 				{					
 					PowerAttackVR::StartMod();
 					PowerAttackVR::GameLoad();
-
-					PowerAttackVR::Hooks();
-
-					PowerAttackVR::InitializePointers();
-					
 				}
 				else if (msg->type == SKSEMessagingInterface::kMessage_PostLoad)
 				{
@@ -132,7 +118,6 @@ namespace PowerAttackVR
 					{
 						PowerAttackVR::GameLoad();
 						PowerAttackVR::AfterGameLoad();
-						PowerAttackVR::InitializePointers();
 					}
 				}
 			}

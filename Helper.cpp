@@ -168,7 +168,6 @@ namespace PowerAttackVR
 						if (form)
 						{
 							powerAttackControlValueGlobal = DYNAMIC_CAST(form, TESForm, TESGlobal);
-
 							_MESSAGE("loaded power attack control global");
 						}
 					}
