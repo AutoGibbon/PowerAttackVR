@@ -21,7 +21,6 @@ namespace PowerAttackVR
 	struct HandPosition
 	{
 		NiPoint3 pos;
-		NiPoint3 pos2;
 		NiMatrix33 rot;
 		float stamina;
 		double time;

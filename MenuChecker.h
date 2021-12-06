@@ -9,7 +9,7 @@
 
 namespace PowerAttackVR
 {
-	const std::string MOD_VERSION = "1.3.2";
+	const std::string MOD_VERSION = "0.0.2";
 
 	extern std::vector<std::string> gameStoppingMenus;
 

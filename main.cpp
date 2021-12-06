@@ -48,7 +48,7 @@ namespace PowerAttackVR
 			// populate info structure
 			info->infoVersion = PluginInfo::kInfoVersion;
 			info->name = "PowerAttackVR";
-			info->version = 000001; // 0.0.1
+			info->version = 000002; // 0.0.1
 
 			// store plugin handle so we can identify ourselves later
 			g_pluginHandle = skse->GetPluginHandle();

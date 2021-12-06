@@ -5,7 +5,7 @@
 namespace PowerAttackVR
 {
 	//Config parameters are defined here
-	int enableLog = 2;
+	const int enableLog = 1;
 
 	int leftHandedMode = 0;
 	int HoldButton = 33;
@@ -18,11 +18,6 @@ namespace PowerAttackVR
 	/// This function is used to set int config parameters from MCM to skse plugin.
 	void SetIntValue(StaticFunctionTag* base, BSFixedString setting, UInt32 intValue)
 	{
-		if (strcmp(setting.data, "WT_EnableLog") == 0)
-		{
-			enableLog = intValue; return;
-		}
-
 		LOG("Value change - %s: %d", setting.data, intValue);
 	}
 

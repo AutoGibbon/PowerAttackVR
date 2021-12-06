@@ -27,6 +27,9 @@ namespace PowerAttackVR
 	std::atomic<bool> LeftButtonGeneralHold;
 	std::atomic<bool> RightButtonGeneralHold;
 
+	std::atomic<float> LeftStickX;
+	std::atomic<float> LeftStickY;
+
 	//Default left-right controller variables. For left handed support to be changed later if needed.
 	vr::ETrackedControllerRole leftControllerRole = vr::ETrackedControllerRole::TrackedControllerRole_LeftHand;
 	vr::ETrackedControllerRole rightControllerRole = vr::ETrackedControllerRole::TrackedControllerRole_RightHand;
@@ -36,9 +39,6 @@ namespace PowerAttackVR
 
 	//SkyrimVRTools hookManagerApi variable
 	OpenVRHookManagerAPI* hookManager;
-
-	std::deque<HandPosition> currentRightHandPos;
-	std::deque<HandPosition> currentLeftHandPos;
 
 	std::deque<HandPosition> rightHandPos;
 	std::deque<HandPosition> leftHandPos;
@@ -99,135 +99,40 @@ namespace PowerAttackVR
 		NiPoint3 firstPos = deque.front().pos;
 		NiPoint3 lastPos = deque.back().pos;
 
-		//get x magnitude
+		bool stickForward = LeftStickY.load() > 0.5f;
 
+		float distX = sqrtf((firstPos.x - lastPos.x) * (firstPos.x - lastPos.x));
+		float distY = sqrtf((firstPos.y - lastPos.y) * (firstPos.y - lastPos.y));
 
-		return AttackDirection::AttackBackward;
-	}
+		
+		if (distX > distY) {
+			if (firstPos.x < lastPos.x) {
+				LOG_INFO("-----------------Attack Right");
+				return AttackRight;
+			}
 
-	Orientation GetOrientationFromPoints(const std::deque<HandPosition>& deque, SpinningType& outSpinningType)
-	{
-		//triangle
-		NiPoint3 normal;
-		std::deque<NiPoint3> heightPoints;
-
-		for (int i = 0; i < deque.size() - 1; i++)
-		{
-			normal = normal + crossProduct(deque[i].pos, deque[i + 1].pos);
-
-			heightPoints.emplace_back(deque[i].pos);
+			LOG_INFO("-----------------Attack Right");
+			return AttackRight;
+			//return firstPos.x < lastPos.x ? AttackRight : AttackLeft;
 		}
-		normal = normal + crossProduct(deque[deque.size() - 1].pos, deque[0].pos);
-		normal = normalize(normal);
-
-		bool highArch = HighArch(heightPoints);
-
-		NiMatrix33 firstRot = deque.front().rot;
-		float firstrotHeading;
-		float firstrotAttitude;
-		float firstrotbank;
-		firstRot.GetEulerAngles(&firstrotHeading, &firstrotAttitude, &firstrotbank);
-		firstrotHeading = firstrotHeading * 57.295776f;
-		firstrotAttitude = firstrotAttitude * 57.295776f;
-		firstrotbank = firstrotbank * 57.29577f;
-
-		NiMatrix33 midRot = deque[(deque.size() - 1) / 2].rot;
-		float midrotHeading;
-		float midrotAttitude;
-		float midrotbank;
-		midRot.GetEulerAngles(&midrotHeading, &midrotAttitude, &midrotbank);
-		midrotHeading = midrotHeading * 57.295776f;
-		midrotAttitude = midrotAttitude * 57.295776f;
-		midrotbank = midrotbank * 57.29577f;
-
-		NiMatrix33 lastRot = deque.back().rot;
-		float rotHeading;
-		float rotAttitude;
-		float rotbank;
-		lastRot.GetEulerAngles(&rotHeading, &rotAttitude, &rotbank);
-		rotHeading = rotHeading * 57.295776f;
-		rotAttitude = rotAttitude * 57.295776f;
-		rotbank = rotbank * 57.295776f;
-
-		bool bladeLookingRight = rotAttitude > 0;
-
-		LOG("rotHeading:%g rotAttitude:%g rotbank:%g", rotHeading, rotAttitude, rotbank);
-
-		const float angle = angleBetweenVectors(NiPoint3(0, 0, 1), normal);
-		LOG("Throw plane normal: x:%g y:%g z:%g - angle:%g", normal.x, normal.y, normal.z, angle);
-
-		//LOG_ERR("======ROTBANK: %g -> %g -> %g  ======Forward: %s", firstrotbank, midrotbank, rotbank, forward ? "true" : "false");
-		LOG("------High Arch: %s--Blade: %s----", highArch ? "true" : "false", bladeLookingRight ? "Left" : "Right");
-		LOG("======ROTBANK: %g -> %g -> %g => %s", firstrotbank, midrotbank, rotbank, AreAnglesTurningClockwise(firstrotbank, midrotbank, rotbank) ? "CLOCKWISE" : "COUNTERCLOCKWISE");
-		LOG("======ROTHEADING: %g -> %g -> %g => %s", firstrotHeading, midrotHeading, rotHeading, AreAnglesTurningClockwise(firstrotHeading, midrotHeading, rotHeading) ? "CLOCKWISE" : "COUNTERCLOCKWISE");
-		LOG("======ROTATTITUDE: %g -> %g -> %g => %s", firstrotAttitude, midrotAttitude, rotAttitude, AreAnglesTurningClockwise(firstrotAttitude, midrotAttitude, rotAttitude) ? "CLOCKWISE" : "COUNTERCLOCKWISE");
-
-		if (angle >= 45.0f - SpinOrientationDeciderAngle && angle <= 135.0f + SpinOrientationDeciderAngle) //Checking angle between the normal and vertical plane (reverse)
-		{
-			if (AreAnglesTurningClockwise(firstrotbank, midrotbank, rotbank))
-			{
-				if (!highArch)
-				{
-					outSpinningType = Upwards;
-					LOG("======Spin type: Upwards==Orientation type: VerticalDown");
-					return VerticalDown;
-				}
-				else
-				{
-					outSpinningType = Downwards;
-					LOG("======Spin type: Downwards==Orientation type: VerticalUp");
-					return VerticalUp;
-				}
+		else if (distY > distX) {
+			if (firstPos.y < lastPos.y) {
+				LOG_INFO("-----------------Attack Backward");
+				return AttackBackward;
 			}
-			else
-			{
-				if (highArch)
-				{
-					outSpinningType = Downwards;
-					LOG("======Spin type: Downwards==Orientation type: VerticalDown");
-					return VerticalDown;
-				}
-				else
-				{
-					outSpinningType = Upwards;
-					LOG("======Spin type: Upwards==Orientation type: VerticalUp");
-					return VerticalUp;
-				}
+
+			if (stickForward) {
+				LOG_INFO("-----------------Attack Forward");
+				return AttackForward;
 			}
+
+			LOG_INFO("-----------------Attack Standing");
+			return AttackStanding;
+
+			//return firstPos.y < lastPos.y ? AttackBackward : (stickForward ? AttackForward : AttackStanding);
 		}
-		else
-		{
-			if (AreAnglesTurningClockwise(firstrotHeading, midrotHeading, rotHeading))
-			{
-				if (!bladeLookingRight)
-				{
-					outSpinningType = Left;
-					LOG("======Spin type: Left==Orientation type: HorizontalLeft");
-					return HorizontalLeft;
-				}
-				else
-				{
-					outSpinningType = Left;
-					LOG("======Spin type: Left==Orientation type: HorizontalRight");
-					return HorizontalRight;
-				}
-			}
-			else
-			{
-				if (!bladeLookingRight)
-				{
-					outSpinningType = Right;
-					LOG("======Spin type: Right==Orientation type: HorizontalLeft");
-					return HorizontalLeft;
-				}
-				else
-				{
-					outSpinningType = Right;
-					LOG("======Spin type: Right==Orientation type: HorizontalRight");
-					return HorizontalRight;
-				}
-			}
-		}
+
+		return AttackStanding;
 	}
 
 	std::atomic<double> rightHandTimer = 0;
@@ -271,35 +176,32 @@ namespace PowerAttackVR
 
 									if (hnode)
 									{
-										const NiPoint3 point = hnode->m_worldTransform.pos - playerRefr->pos;
 										HandPosition hps;
-										hps.pos = point;
 										PapyrusVR::Matrix34 matrix = GetMatrix(pGamePoseArray[rightController].mDeviceToAbsoluteTracking);
 										NiTransform transform;
 										PapyrusVR::OpenVRUtils::CopyMatrix34ToNiTrasform(&matrix, &transform);
 										hps.rot = transform.rot;
-										hps.pos2 = transform.pos;
+										hps.pos = transform.pos;
 										hps.time = rightHandTimer.load();
 
-										currentRightHandPos.push_back(hps);
-										LOG_INFO("Right: %g %g %g ---- %g %g %g Time: %g", point.x, point.y, point.z, transform.pos.x, transform.pos.y, transform.pos.z, hps.time);
+										rightHandPos.push_back(hps);
+										LOG_INFO("Right: %g %g %g Time: %g", transform.pos.x, transform.pos.y, transform.pos.z, hps.time);
 									}
 									else
 									{
 										LOG("rightWandNode not found");
 									}
 
-									if (currentRightHandPos.size() % 10 == 0) {
+									if (rightHandPos.size() % 10 == 0) {
 										if (!(leftHandedMode && LeftButtonHold.load())) {
-											Orientation rightHandAttackOrientation = VerticalDown;
-											SpinningType spinningType = Right;
+											AttackDirection rightHandAttackDirection = AttackStanding;
 
-											//rightHandPos.clear();
-											//rightHandPos.swap(currentRightHandPos);
-											//currentRightHandPos.clear();
+											/*rightHandPos.clear();
+											rightHandPos.swap(currentRightHandPos);
+											currentRightHandPos.clear();*/
 
-											rightHandAttackOrientation = GetOrientationFromPoints(currentRightHandPos, spinningType);
-											powerAttackControlValueGlobal->value = (float)rightHandAttackOrientation;
+											rightHandAttackDirection = GetAttackDirection(rightHandPos);
+											powerAttackControlValueGlobal->value = (float)rightHandAttackDirection;
 										}
 									}
 								}
@@ -311,13 +213,13 @@ namespace PowerAttackVR
 						}
 						else
 						{
-							currentRightHandPos.clear();
+							rightHandPos.clear();
 							rightHandTimer.store(0);
 						}
 					}
 					else
 					{
-						currentRightHandPos.clear();
+						rightHandPos.clear();
 						rightHandTimer.store(0);
 					}
 
@@ -338,35 +240,25 @@ namespace PowerAttackVR
 
 									if (hnode)
 									{
-										const NiPoint3 point = hnode->m_worldTransform.pos - playerRefr->pos;
 										HandPosition hps;
-										hps.pos = point;
 										PapyrusVR::Matrix34 matrix = GetMatrix(pGamePoseArray[leftController].mDeviceToAbsoluteTracking);
 										NiTransform transform;
 										PapyrusVR::OpenVRUtils::CopyMatrix34ToNiTrasform(&matrix, &transform);
 										hps.rot = transform.rot;
-										hps.pos2 = transform.pos;
+										hps.pos = transform.pos;
 										hps.time = leftHandTimer.load();
 
-										currentLeftHandPos.push_back(hps);
-										LOG_INFO("Left: %g %g %g ---- %g %g %g Time: %g", point.x, point.y, point.z, transform.pos.x, transform.pos.y, transform.pos.z, hps.time);
+										leftHandPos.push_back(hps);
+										LOG_INFO("Left: %g %g %g Time: %g", transform.pos.x, transform.pos.y, transform.pos.z, hps.time);
 									}
 									else
 									{
 										LOG("LeftWandNode not found");
 									}
 
-									if (currentLeftHandPos.size() % 10 == 0) {
+									if (leftHandPos.size() % 10 == 0) {
 										if (!(!leftHandedMode && RightButtonHold.load())) {
-											Orientation leftHandAttackOrientation = VerticalDown;
-											SpinningType spinningType = Right;
-
-											//leftHandPos.clear();
-											//leftHandPos.swap(currentLeftHandPos);
-										//	currentLeftHandPos.clear();
-
-											leftHandAttackOrientation = GetOrientationFromPoints(currentLeftHandPos, spinningType);
-											powerAttackControlValueGlobal->value = (float)leftHandAttackOrientation;
+											powerAttackControlValueGlobal->value = (float)GetAttackDirection(leftHandPos);
 										}
 									}
 								}
@@ -378,20 +270,20 @@ namespace PowerAttackVR
 						}
 						else
 						{
-							currentLeftHandPos.clear();
+							leftHandPos.clear();
 							leftHandTimer.store(0);
 						}
 					}
 					else
 					{
-						currentLeftHandPos.clear();
+						leftHandPos.clear();
 						leftHandTimer.store(0);
 					}
 				}
 				else
 				{
-					currentRightHandPos.clear();
-					currentLeftHandPos.clear();
+					leftHandPos.clear();
+					rightHandPos.clear();
 					leftHandTimer.store(0);
 					rightHandTimer.store(0);
 				}
@@ -422,6 +314,7 @@ namespace PowerAttackVR
 							{
 								if ((pControllerState->ulButtonPressed & buttonMask) && !RightButtonGeneralHold.load())
 								{
+									LOG_INFO("----------------------------------");
 									LOG_INFO("Right Button is pressed right now.");
 									RightButtonGeneralHold.store(true);
 								}
@@ -443,7 +336,6 @@ namespace PowerAttackVR
 									RightButtonHold.store(false);
 
 									rightHandPos.clear();
-									currentRightHandPos.clear();
 								}
 							}
 						}
@@ -453,6 +345,7 @@ namespace PowerAttackVR
 							{
 								if ((pControllerState->ulButtonPressed & buttonMaskSecondary) && !LeftButtonGeneralHold.load())
 								{
+									LOG_INFO("----------------------------------");
 									LOG_INFO("Left Button is pressed right now.");
 									LeftButtonGeneralHold.store(true);
 								}
@@ -474,7 +367,12 @@ namespace PowerAttackVR
 									LeftButtonHold.store(false);
 
 									leftHandPos.clear();
-									currentLeftHandPos.clear();
+								}
+
+								if (pControllerState->rAxis->x != 0.0f || pControllerState->rAxis->y != 0.0f) {
+									//LOG_INFO("controller axis %g %g", pControllerState->rAxis->x, pControllerState->rAxis->y);
+									LeftStickX.store(pControllerState->rAxis->x);
+									LeftStickY.store(pControllerState->rAxis->y);
 								}
 							}
 						}

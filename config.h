@@ -15,7 +15,7 @@
 
 namespace PowerAttackVR
 {
-	extern int enableLog;
+	const extern int enableLog;
 	extern int leftHandedMode;
 	
 	extern int HoldButton;
