@@ -103,7 +103,12 @@ namespace PowerAttackVR
 
 		float distX = sqrtf((firstPos.x - lastPos.x) * (firstPos.x - lastPos.x));
 		float distY = sqrtf((firstPos.y - lastPos.y) * (firstPos.y - lastPos.y));
+		float distZ = sqrtf((firstPos.z - lastPos.z) * (firstPos.z - lastPos.z));
 
+		if (distZ > distX * 2 && distZ > distY * 2) {
+			LOG_INFO("-----------------Attack Forward");
+			return AttackForward;
+		}
 		
 		if (distX > distY) {
 			if (firstPos.x < lastPos.x) {
